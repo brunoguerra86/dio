@@ -1,0 +1,166 @@
+/** 
+ * DigitalInnovation.one - Ordenação e Filtros em Java
+ * Desafio 5/5 - Gincana no Acampamento
+
+DESAFIO
+Nas férias de Dezembro, várias escolas se organizam e levam seus alunos para um 
+acampamento de férias por uma semana. Nestes acampamentos os alunos são divididos 
+em cabanas coletivos por gênero e idade, sempre com um adulto que, além de dormir 
+com o grupo no cabana, também são responsáveis por criar e executar várias 
+atividades, como por exemplo jogos, excursões, Gincanas Noturnas, etc.
+
+No primeiro dia foi realizada uma gincana em que a atividade constituia em agrupar 
+os alunos em um círculo (organizado no sentido anti-horário) do qual seriam retiradas 
+uma a uma até que sobrasse apenas um aluno, que seria o vencedor.
+
+No momento em que entra no círculo, cada aluno recebe uma pequena ficha que contém 
+um valor de 1 a 500. Depois que o círculo é formado, conta-se, iniciando no aluno 
+que está ao lado da primeira que entrou no círculo, o número correspondente à ficha 
+que o primeiro detém. O aluno onde o número contado cair, deve ser retirado do grupo, 
+e a contagem inicia novamente segundo a ficha do aluno que acabou de ser eliminado. 
+Para ficar mais interessante, quando o valor que consta na ficha é par, a contagem é 
+feita no sentido horário e quando o valor que consta na ficha é ímpar, a contagem é 
+feita no sentido anti-horário.
+
+Desenvolva um programa para que no próximo evento o responsável pela brincadeira 
+saiba previamente qual criança irá ser a vencedora de cada grupo, com base nas 
+informações fornecidas.
+
+ENTRADA
+A entrada contém vários casos de teste. A primeira linha de cada caso de teste contém 
+um inteiro N (1 ≤ N ≤ 100), indicando a quantidade de alunos que farão parte de cada 
+círculo. Em seguida, as N linhas de cada caso de teste conterão duas informações, o 
+Nome e o Valor (1 ≤ Valor ≤ 500) que consta na ficha de cada aluno, separados por um 
+espaço, na ordem de entrada na formação do círculo inicial.
+
+OBS: O Nome de cada aluno não deverá ultrapassar 30 caracteres e contém apenas letras 
+maiúsculas e minúsculas, sem acentos, e o caractere "_". O final da entrada é indicado 
+pelo número zero.
+
+SAIDA
+Para cada caso de teste, deve-se apresentar a mensagem Vencedor(a): xxxxxx, com um 
+espaço após o sinal ":" indicando qual é o aluno do grupo que venceu a brincadeira.
+
+Exemplo:
+
+5
+Maria 7
+Pedro 9
+Joao_Vitor 5
+Isabel 12
+Laura 8
+
+Resultado esperado:
+Vencedor(a): Pedro
+
+*/
+
+
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.lang.model.util.ElementScanner6;
+import javax.print.attribute.standard.NumberOfDocuments;
+
+import java.util.Collections;
+
+public class Acampamento {
+  public static void main(String[] args) throws IOException {
+    Scanner scanner = new Scanner(System.in);
+    
+    ArrayList<String> listaSaida = new ArrayList<String>();
+    ArrayList<Participante> listaFinal = new ArrayList<Participante>();
+
+    //Recebe Qtde de Participantes
+    Integer numParticipantes = Integer.parseInt(scanner.nextLine());
+    
+    while(!numParticipantes.equals(0)){
+        //Limpa listaFinal
+        listaFinal.clear();
+        
+        //Recebe nome e ficha de cada participante
+        for(int i = 0; i < numParticipantes; i++){
+            //Recebe Nome + Numero
+            //System.out.printf("\nParcipante[%d de %d]:", i+1, numParticipantes);
+            String strLeitura = "";            
+            strLeitura = scanner.nextLine();
+
+            //Adiciona na lista final
+            listaFinal.add(new Participante(strLeitura));
+        }
+
+        //listaFinal.stream().forEach(System.out::println);
+        
+        //Inicia Jogo
+        int numeroPosicaoAtual = 0;
+        int contaPassos = listaFinal.get(numeroPosicaoAtual).getNumero();
+
+        while(listaFinal.size() > 1){
+
+            //System.out.println("\n======= inicio lista ========");
+            //listaFinal.stream().forEach(System.out::println);
+            //System.out.println("=======   fim lista  ========\n");
+
+            //SE IMPAR
+            if(contaPassos % 2 == 1){
+                numeroPosicaoAtual = ( numeroPosicaoAtual + contaPassos ) % listaFinal.size();
+            }
+            //SE PAR
+            else{
+                numeroPosicaoAtual = ( numeroPosicaoAtual - (contaPassos % listaFinal.size()) ) % listaFinal.size();
+
+                if(numeroPosicaoAtual < 0)
+                    numeroPosicaoAtual += listaFinal.size();
+            }
+
+            contaPassos = listaFinal.get(numeroPosicaoAtual).getNumero();
+            
+            //System.out.println("numeroPosicaoAtual: " + numeroPosicaoAtual);
+            //System.out.println("listaFinal.size() : " + listaFinal.size());            
+            //System.out.println("Removendo: " + listaFinal.get(numeroPosicaoAtual).getNome());
+            
+            listaFinal.remove(numeroPosicaoAtual);
+
+            if (contaPassos % 2 == 1)
+                numeroPosicaoAtual--;
+        }
+        
+        //Adiciona vencedor a lista final
+        listaSaida.add("Vencedor(a): " + listaFinal.get(0).getNome());
+        
+        //Próxima Leitura - 0 para sair
+        numParticipantes = Integer.parseInt(scanner.nextLine());
+    }
+
+    //Imprime Vencedores
+    listaSaida.stream().forEach(System.out::println);
+  }
+
+  public static class Participante{
+    private String nome;
+    private int numero;
+    
+    public Participante(String strLeitura){
+      this.nome    = strLeitura.substring(0, strLeitura.indexOf(" "));
+      this.numero  = Integer.valueOf(strLeitura.substring(strLeitura.indexOf(" ")+1));
+    }
+
+    public String getNome(){
+      return nome;
+    }
+    public int getNumero(){
+      return numero;
+    }
+    public void setNumero(){
+        if(this.numero > 0) 
+            this.numero *= -1;
+    }
+
+    @Override
+    public String toString() { 
+        return (nome + " " + numero);
+    }
+  }
+}
